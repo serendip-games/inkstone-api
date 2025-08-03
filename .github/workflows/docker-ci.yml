@@ -36,12 +36,12 @@ jobs:
           echo "REPO=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT
 
           if [[ "${GITHUB_REF_NAME}" == "master" ]]; then
-            echo "TAGS=ghcr.io/${{ github.repository }}:dev" >> $GITHUB_OUTPUT
+            echo "TAGS=dev" >> $GITHUB_OUTPUT
           elif [[ "${GITHUB_REF_NAME}" == release/v* ]]; then
-            VERSION="${GITHUB_REF_NAME#release/}"
-            echo "TAGS=ghcr.io/${{ github.repository }}:stg-v$VERSION"$'\n'"ghcr.io/${{ github.repository }}:stg" >> $GITHUB_OUTPUT
+            VERSION="${GITHUB_REF_NAME#release/}"  # removes 'release/' prefix
+            echo -e "TAGS=stg-v$VERSION\nstg" >> $GITHUB_OUTPUT
           else
-            echo "TAGS=ghcr.io/${{ github.repository }}:unknown" >> $GITHUB_OUTPUT
+            echo "TAGS=unknown" >> $GITHUB_OUTPUT
           fi
 
       - name: Build and push Docker image
@@ -49,4 +49,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.TAGS }}
+          tags: |
+            ${{ steps.meta.outputs.REPO }}:${{ fromJSON('["' + steps.meta.outputs.TAGS.replace('\n', '","') + '"]') }}

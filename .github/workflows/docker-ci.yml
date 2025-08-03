@@ -35,10 +35,10 @@ jobs:
         run: |
           echo "REPO=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT
 
-          if [[ "${{ github.ref_name }}" == "master" ]]; then
+          if [[ "${GITHUB_REF_NAME}" == "master" ]]; then
             echo "TAGS=dev" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref_name }}" == release/v* ]]; then
-            VERSION="${{ github.ref_name#release/v }}"
+          elif [[ "${GITHUB_REF_NAME}" == release/v* ]]; then
+            VERSION="${GITHUB_REF_NAME#release/}"  # removes 'release/' prefix
             echo "TAGS=stg-v$VERSION stg" >> $GITHUB_OUTPUT
           else
             echo "TAGS=unknown" >> $GITHUB_OUTPUT
